@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DCA Portfolio Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Decorative blobs, anchored to the real browser window (not the centered
+       content column) so they bleed off the true screen edge instead of
+       getting clipped by .app's narrower box. Purely background texture. -->
+  <div class="blobs" aria-hidden="true">
+    <div class="blob blob--pink"></div>
+    <div class="blob blob--blue"></div>
+  </div>
+
+  <header class="topbar">
+    <span class="topbar__mark">DCA&nbsp;Lab</span>
+    <span class="topbar__tag">Weekly vs Monthly, tested</span>
+  </header>
+
+  <main class="app">
+
+    <section class="panel panel--controls" aria-labelledby="controls-heading">
+      <h1 id="controls-heading" class="panel__eyebrow">Set up your run</h1>
+
+      <form id="sim-form" class="sim-form">
+        <label class="field">
+          <span class="field__label">Monthly budget ($)</span>
+          <input type="number" id="budget" name="budget" min="1" step="1" value="60" required>
+        </label>
+
+        <div class="field-row">
+          <label class="field">
+            <span class="field__label">Start</span>
+            <input type="date" id="start-date" name="start-date" value="2015-01-01" required>
+          </label>
+          <label class="field">
+            <span class="field__label">End</span>
+            <input type="date" id="end-date" name="end-date" value="2025-01-01" required>
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field__label">Strategy</span>
+          <select id="strategy" name="strategy">
+            <option value="flat">Flat</option>
+            <option value="dip">Dip</option>
+          </select>
+        </label>
+
+        <button type="submit" class="btn btn--primary" id="start-btn">Run weekly vs monthly</button>
+      </form>
+
+      <!-- aria-live: screen readers announce whatever text script.js puts here -->
+      <p id="status" class="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel panel--portfolio" aria-labelledby="portfolio-heading">
+      <div class="panel__head">
+        <h2 id="portfolio-heading" class="panel__eyebrow">Tailor Your Portfolio</h2>
+        <button type="button" id="edit-portfolio-btn" class="btn btn--ghost">Edit</button>
+      </div>
+
+      <div class="chart-wrap">
+        <svg id="donut" viewBox="0 0 200 200" role="img" aria-labelledby="donut-title donut-desc">
+          <title id="donut-title">Portfolio allocation</title>
+          <desc id="donut-desc">Donut chart showing each stock's share of the portfolio</desc>
+        </svg>
+        <div class="chart-center">
+          <span class="chart-center__label" id="chart-center-label">Total budget</span>
+          <span class="chart-center__value" id="chart-center-value">$60/mo</span>
+        </div>
+      </div>
+
+      <ul id="legend" class="legend"></ul>
+    </section>
+
+    <!-- Results: hidden until the Python engine answers -->
+    <section id="results" class="panel panel--results" aria-labelledby="results-heading" hidden>
+      <h2 id="results-heading" class="panel__eyebrow">Weekly vs Monthly</h2>
+      <p id="verdict" class="verdict"></p>
+
+      <div class="compare">
+        <article class="compare__card compare__card--weekly" id="card-weekly"></article>
+        <article class="compare__card compare__card--monthly" id="card-monthly"></article>
+      </div>
+
+      <div class="line-chart">
+        <canvas id="growth-chart" role="img" aria-label="Portfolio value over time, weekly vs monthly DCA, with cash invested"></canvas>
+      </div>
+
+      <table class="stock-table">
+        <caption>Per stock</caption>
+        <thead>
+          <tr><th scope="col">Stock</th><th scope="col">Share</th><th scope="col">Weekly</th><th scope="col">Monthly</th></tr>
+        </thead>
+        <tbody id="stock-table-body"></tbody>
+      </table>
+
+      <p class="fine-print">Each buy is priced at a random point within that day's low–high range, with a 1% fee per buy and dividends reinvested. Weekly and monthly use the same random seed, so they're compared fairly.</p>
+    </section>
+
+  </main>
+
+  <!-- Portfolio editor modal -->
+  <dialog id="portfolio-modal" class="modal">
+    <form method="dialog" class="modal__form">
+      <div class="modal__head">
+        <h2>Edit portfolio</h2>
+        <button type="button" id="modal-close-btn" class="btn btn--icon" aria-label="Close">&times;</button>
+      </div>
+
+      <ul id="stock-rows" class="stock-rows"></ul>
+
+      <div class="add-row">
+        <input type="text" id="new-ticker" placeholder="Ticker, e.g. AAPL" maxlength="10">
+        <button type="button" id="add-stock-btn" class="btn btn--ghost">+ Add stock</button>
+      </div>
+      <p id="modal-error" class="modal__error" role="alert"></p>
+
+      <button type="submit" class="btn btn--primary" id="modal-done-btn">Done</button>
+    </form>
+  </dialog>
+
+  <!-- Chart.js: a small charting library, loaded from a CDN. Draws the line chart. -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

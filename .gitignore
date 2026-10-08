@@ -1,0 +1,16 @@
+# Python's auto-generated cache files -- regenerated on every run, never commit them
+__pycache__/
+*.pyc
+
+# Virtual environments, if you ever make one
+.venv/
+venv/
+
+# Editor settings
+.vscode/
+
+
+IDEAS.md
+AGENTS.md
+CLAUDE.md
+CLAUDEwebdesign copy.md
